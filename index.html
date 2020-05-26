@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- Подключение Bootstrap чтобы все выглядело красиво -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    />
+    <title>Web Chat</title>
+    <style>
+      body {
+        background: #fcfcfc;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+      <h5 class="my-0 mr-md-auto">Farid Yusifzadeh</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#">faridfy@code.edu.az</a>
+        <a class="p-2 text-dark" href="#">+994705712155</a>
+        <a
+          class="p-2 text-dark"
+          href="https://www.linkedin.com/in/farid-yusifzadeh-434177183/"
+          >Linkedin</a
+        >
+        <a class="p-2 text-dark" href="#">Prices</a>
+      </nav>
+      <a class="btn btn-outline-primary" href="#">Registration</a>
+    </div>
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>Web Chat</h2>
+        <p class="lead">Enter you name</p>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <h3>Message Type</h3>
+          <form id="messForm">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="Enter You Name"
+              class="form-control"
+            />
+            <br />
+            <label for="message">Message</label>
+            <textarea
+              name="message"
+              id="message"
+              class="form-control"
+              placeholder="Enter Message"
+            ></textarea>
+            <br />
+            <input type="submit" value="Send" class="btn btn-success" />
+          </form>
+        </div>
+        <div class="col-6">
+          <h3>Message</h3>
+          <div id="all_mess"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Подключаем jQuery, а также Socket.io -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var min = 1;
+      var max = 6;
+      var random = Math.floor(Math.random() * (max - min)) + min;
+
+      var alertClass;
+      switch (random) {
+        case 1:
+          alertClass = 'secondary';
+          break;
+        case 2:
+          alertClass = 'danger';
+          break;
+        case 3:
+          alertClass = 'success';
+          break;
+        case 4:
+          alertClass = 'warning';
+          break;
+        case 5:
+          alertClass = 'info';
+          break;
+        case 6:
+          alertClass = 'light';
+          break;
+      }
+
+      $(function () {
+        let socket = io.connect();
+        // Делаем переменные на:
+        let $form = $('#messForm');
+        let $name = $('#name');
+        let $textarea = $('#message');
+        let $all_messages = $('#all_mess');
+
+        $form.submit((event) => {
+          event.preventDefault();
+
+          socket.emit('send mess', {
+            mess: $textarea.val(),
+            name: $name.val(),
+            className: alertClass,
+          });
+
+          $textarea.val('');
+        });
+
+        socket.on('add mess', (data) => {
+          $all_messages.append(
+            "<div class='alert alert-" +
+              data.className +
+              "'><b>" +
+              data.name +
+              '</b>: ' +
+              data.mess +
+              '</div>'
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
